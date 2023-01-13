@@ -63,6 +63,7 @@ class Menu:
 
 
 
+# aboba
 
 menu = Menu
 menu.append_option('Начать игру', lambda: print('afsdfsdfsf'), 1)
