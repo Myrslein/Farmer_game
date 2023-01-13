@@ -1,14 +1,23 @@
-import pygame
-#
-import sys
 import os
+import sys
+
+import pygame as pygame
+
+pygame.init()
+width = 850
+height = 550
+size = 850, 550
+screen = pygame.display.set_mode(size)
 
 
-FPS = 50
+############################ Загрузка и обработка изображения ################################
+def terminate():
+    pygame.quit()
+    sys.exit()
 
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('back.jpg', name)
+    fullname = os.path.join('backside', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -17,60 +26,55 @@ def load_image(name, colorkey=None):
     return image
 
 
-def terminate():
-    pygame.quit()
-    sys.exit()
+fon = pygame.transform.scale(load_image('back.jpg'), (width, height))
+screen.blit(fon, (0, 0))
+
+###################################### Создаем меню ############################################
+
+Arial = pygame.font.SysFont('arial', 45)
 
 
-def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+class Menu:
+    def __init__(self):
+        self.option_surfaces = []
+        self.callbacks = []
+        self.last_option_index = 0
 
-    fon = pygame.transform.scale(load_image('back.jpg'), (1000, 1000))
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
+    def append_option(self, sth_new, callback):
+        self.option_surfaces.append(Arial.render(sth_new, True, 'White'))
+        self.callbacks.append(callback)
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
-        pygame.display.flip()
-        clock.tick(FPS)
+    def switch(self, direction):
+        self.last_option_index = max(0, min(self.last_option_index + direction, len(self.option_surfaces) - 1))
+
+    def select(self):
+        self.callbacks[self.last_option_index]()
+
+    def draw(self, surface, x, y, padding):
+        for index, option in enumerate(self.option_surfaces):
+            option_rect = option.get_rect()
+            option_rect.topleft = (x, y + index * padding)
+            surface.blit(option, self.option_rect)
+    #
+    # def delete(self):
+    #     for opt in self.option_surfaces:
+    #         for i in range(20):
+    #             self.option_rect.topleft = (self.x + i, self.y)
 
 
-if __name__ == '__main__':
-    pygame.init()
-    pygame.display.set_caption('Движущийся круг 2')
-    size = width, height = 800, 400
-    screen = pygame.display.set_mode(size)
-#
-    running = True
-    v = 20  # пикселей в секунду
-    fps = 60
-    clock = pygame.time.Clock()
-    while running:
-        start_screen()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        screen.fill((0, 0, 0))
-    #     pygame.draw.circle(screen, (255, 0, 0), (int(x_pos), 200), 20)
-    #     x_pos += v / fps
-    #     clock.tick(fps)
-        pygame.display.flip()
-    pygame.quit()
-print('hello')
+
+
+menu = Menu
+menu.append_option('Начать игру', lambda: print('afsdfsdfsf'), 1)
+menu.append_option('Выйти', quit())
+
+##################################### Основной игровой цикл #####################################
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    menu.draw(screen, 425, 300, 10)
+    pygame.display.flip()
