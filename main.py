@@ -67,7 +67,7 @@ menu.append_option('выход', quit)
 
 ##################################### Основной игровой цикл #####################################
 running = True
-
+#aboba
 while running:
     menu.draw(screen, 320, 300, 50)
     for event in pygame.event.get():
