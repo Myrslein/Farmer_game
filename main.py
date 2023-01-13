@@ -11,11 +11,6 @@ screen = pygame.display.set_mode(size)
 
 
 ############################ Загрузка и обработка изображения ################################
-def terminate():
-    pygame.quit()
-    sys.exit()
-
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('backside', name)
     # если файл не существует, то выходим
@@ -54,7 +49,9 @@ class Menu:
         for index, option in enumerate(self.option_surfaces):
             option_rect = option.get_rect()
             option_rect.topleft = (x, y + index * padding)
-            surface.blit(option, self.option_rect)
+            if index == self.last_option_index:
+                pygame.draw.rect(surface, (0, 69, 36), option_rect)
+            surface.blit(option, option_rect)
     #
     # def delete(self):
     #     for opt in self.option_surfaces:
@@ -63,19 +60,26 @@ class Menu:
 
 
 
-# aboba
 
-menu = Menu
-menu.append_option('Начать игру', lambda: print('afsdfsdfsf'), 1)
-menu.append_option('Выйти', quit())
+menu = Menu()
+menu.append_option('Начать игру', lambda: print('afsdfsdfsf'))
+menu.append_option('выход', quit)
 
 ##################################### Основной игровой цикл #####################################
 running = True
 
 while running:
+    menu.draw(screen, 320, 300, 50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                menu.switch(-1)
+            elif event.key == pygame.K_DOWN:
+                menu.switch(1)
+            elif event.key == pygame.K_RETURN:
+                menu.select()
 
-    menu.draw(screen, 425, 300, 10)
     pygame.display.flip()
+quit()
